@@ -9,6 +9,27 @@
 #include <vector>
 #include <algorithm>
 #include <openssl/evp.h>
+static const std::string base64_chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+
+static std::string encode_base64(const std::string &in) {
+    std::string out;
+    int val = 0, valb = -6;
+
+    for (unsigned char c : in) {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back(base64_chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6) out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (out.size() % 4) out.push_back('=');
+    return out;
+}
 
 // ABX (Android Binary XML) to XML converter
 // Copyright (c) 2022, _that
@@ -226,9 +247,8 @@ private:
 					std::string b64;
 					auto outlen = ((s.length() + 2) / 3) * 4;
 					b64.resize(outlen+1);		// +1 for null terminator
-					auto got = EVP_EncodeBlock(
-						reinterpret_cast<unsigned char *>(&b64[0]),
-						reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
+					b64 = encode_base64(s);
+
 					if (got != outlen)
 					{
 						mError = true;
