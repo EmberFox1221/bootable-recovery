@@ -240,23 +240,13 @@ private:
 					}
 					return hex;
 				}
+                case TYPE_BYTES_BASE64:
+                {
+                  std::string s = read_string(m_is);
+                  std::string b64 = encode_base64(s);
+			      return b64;
+                }
 
-			case TYPE_BYTES_BASE64:
-				{
-					std::string s = read_string(m_is);
-					std::string b64;
-					auto outlen = ((s.length() + 2) / 3) * 4;
-					b64.resize(outlen+1);		// +1 for null terminator
-					b64 = encode_base64(s);
-
-					if (got != outlen)
-					{
-						mError = true;
-						return "#error: base64 encoding failed";  // TODO
-					}
-					b64.resize(outlen);
-					return b64;
-				}
 
 			case TYPE_INT_HEX:
 				// TODO: output hex instead of dec (what is the exact format?)
