@@ -1,4 +1,4 @@
-]#ifndef _ABXFUNCTIONS_HPP
+#ifndef _ABXFUNCTIONS_HPP
 #define _ABXFUNCTIONS_HPP
 
 #include <fstream>
